@@ -1,70 +1,21 @@
 ---
 name: folder-yaml
-description: Read and write `.folder.yaml`, the per-folder metadata file that nautilus-folder-yaml (a nautilus-python extension) renders. Covers folder descriptions (`desc`) and per-file descriptions (`file-desc`). Use when adding a description to a folder, describing a file, or when you need the exact format of `.folder.yaml`.
+description: Read and write `.folder.yaml`, the metadata file a folder keeps about itself (description and notes on its files). Use when exploring a folder tree, describing or annotating folders and files, or moving files between folders.
 ---
-
-# `.folder.yaml`
-
-A folder may hold one `.folder.yaml`: a hidden YAML file **inside the folder**, so it travels with the folder when it is moved or copied. nautilus-folder-yaml reads it and renders it; any other tool can read and write it too.
-
-## When this applies
-
-- The fields below are rendered by **nautilus-folder-yaml**. Without it installed the file is still valid data — there is just no UI effect.
-- Edit the file in place rather than rewriting it blind: it may hold comments and keys you do not know about.
-
-## Format
-
-Every key is optional and top-level:
-
-| Key | Type | Meaning |
-|---|---|---|
-| `desc` | string | Description of the folder itself, shown under the name in icon view and in the `desc` column of list view. Any language. Absent = nothing shown. |
-| `file-desc` | mapping: file name → string | Description of a file **inside this folder**, shown on that file where `desc` would be shown. |
-
+# .folder.yaml
+A folder can describe itself in a hidden `.folder.yaml` inside it. The file travels with the folder and is committed with it. All keys are optional:
 ```yaml
-desc: 我的项目
-file-desc:
-  notes.txt: 会议记录
+desc: 天气数据抓取和展示    # what this folder is for
+file-desc:                 # file NAME in this folder → what it is
+  fetch.py: 抓取入口，每小时跑一次
 ```
-
-In the UI both are called "描述" in Chinese and `desc` in every other language.
-
-## Describe a folder
-
-Set or update the top-level `desc` key, leaving everything else in the file untouched:
-
-```yaml
-desc: 我的项目
-```
-
-To remove the description, delete the `desc` key — and the whole file if nothing else remains.
-
-## Describe a file
-
-`file-desc` maps the **file name only** (no path) to the description:
-
-```yaml
-file-desc:
-  notes.txt: 会议记录
-```
-
-- The key is the name as it appears in this folder: `report.pdf`, not `sub/report.pdf`.
-- Write it into the `.folder.yaml` of the folder that contains the file.
-- The description follows the file: nautilus-folder-yaml keeps a token in the file's own extended attribute (`user.nautilus-folder-yaml.desc`), so renaming or moving a file **inside nautilus** carries the description along. Moving files with other tools leaves the entry behind — delete it there and add one at the destination.
-- To remove a description, delete its entry; if `file-desc` then has no entries left, delete the key too.
-
-## Invariants
-
-- **Preserve everything else**: comments, other keys, key order, quoting style. Change only the key you came for. Never round-trip the file through a YAML dumper — that drops comments.
-- UTF-8, and the name is exactly `.folder.yaml`.
-- `file-desc` keys are file **names**, never paths.
-- A folder without a `.folder.yaml` simply has no metadata. Create the file when you have something to record.
-
-## Don't
-
-- Rewrite the whole file (comments are lost).
-- Key `file-desc` by path, or describe a subfolder there — a subfolder describes itself with its own `desc`.
-
-## More
-
-<https://github.com/folderyaml/nautilus-folder-yaml>
+Keep keys you don't recognise exactly as they are.
+## Read
+In an unfamiliar tree, find and read every `.folder.yaml` first (skip `.git` and dependency folders). It is the quickest map of what each part is for.
+## Write
+- Use a targeted in-place edit. Change only your key and keep comments, other keys, key order and quoting. Never round-trip the file through a YAML serializer.
+- `desc`: one line saying what the folder is for and anything non-obvious. Never just "a folder" or "the code".
+- `file-desc` keys are names in this folder, never paths. A subfolder describes itself with its own `desc`.
+- Delete a key when it becomes empty; delete the file when nothing is left.
+- UTF-8; the file name is exactly `.folder.yaml`.
+- When you rename a file, rename its `file-desc` key. When you move a file to another folder, remove its entry from the old folder's `.folder.yaml` and add it to the new folder's (create the file if needed).
