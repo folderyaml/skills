@@ -14,7 +14,9 @@ Keep keys you don't recognise exactly as they are.
 In an unfamiliar tree, find and read every `.folder.yaml` first (skip `.git` and dependency folders). It is the quickest map of what each part is for.
 ## Write
 - Use a targeted in-place edit. Change only your key and keep comments, other keys, key order and quoting. Never round-trip the file through a YAML serializer.
-- `desc`: one line saying what the folder is for and anything non-obvious. Never just "a folder" or "the code".
+- `desc` and every `file-desc` value: one line saying what it is actually for, plus anything non-obvious. Never just restate the name or type ("a folder", "the code", "Python script").
+- Keep each description as short as it can be while still making the purpose clear; 65 bytes in UTF-8 is the hard maximum, not a target.
+- Write descriptions in the system's language.
 - `file-desc` keys are names in this folder, never paths. A subfolder describes itself with its own `desc`.
 - Delete a key when it becomes empty; delete the file when nothing is left.
 - UTF-8; the file name is exactly `.folder.yaml`.
